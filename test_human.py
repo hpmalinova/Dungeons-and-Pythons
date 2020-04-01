@@ -2,6 +2,8 @@
 
 import unittest
 from human import Human
+from weapon import Weapon
+from spell import Spell
 
 class TestHumanValidation(unittest.TestCase):
     def test_human_validate_input_raises_typeerror_if_health_is_not_int(self):
@@ -10,7 +12,7 @@ class TestHumanValidation(unittest.TestCase):
         exc = None
 
         try:
-            Human.validate_input(test_health, test_mana)
+            Human.validate_input_human(test_health, test_mana)
         except TypeError as err:
             exc = err
 
@@ -23,13 +25,50 @@ class TestHumanValidation(unittest.TestCase):
         exc = None
 
         try:
-            Human.validate_input(test_health, test_mana)
+            Human.validate_input_human(test_health, test_mana)
         except TypeError as err:
             exc = err
 
         self.assertIsNotNone(exc)
         self.assertEqual(str(exc), 'Mana must be of "int" type.')
 
+    def test_human_validate_input_raises_exception_if_mana_is_negative(self):
+        test_health = 100
+        test_mana = -5
+        exc = None
+
+        try:
+            Human.validate_input_human(test_health, test_mana)
+        except Exception as err:
+            exc = err
+
+        self.assertIsNotNone(exc)
+        self.assertEqual(str(exc), 'Mana cannot be less than 0.')
+
+    def test_human_validate_input_raises_exception_if_mana_is_negative(self):
+        test_health = -5
+        test_mana = 100
+        exc = None
+
+        try:
+            Human.validate_input_human(test_health, test_mana)
+        except Exception as err:
+            exc = err
+
+        self.assertIsNotNone(exc)
+        self.assertEqual(str(exc), 'Health cannot be less than 0.')
+
+    def test_human_validate_input_passes_with_zero_mana(self):
+        test_health = 100
+        test_mana = 0
+
+        Human.validate_input_human(test_health, test_mana)
+        
+    def test_human_validate_input_passes_with_zero_health(self):
+        test_health = 0
+        test_mana = 50
+
+        Human.validate_input_human(test_health, test_mana)
 
 class TestHumanInit(unittest.TestCase):
     def test_human_init_initializes_object_as_expected(self):
@@ -41,6 +80,9 @@ class TestHumanInit(unittest.TestCase):
         self.assertEqual(getattr(test_obj, 'health'), 100)
         self.assertEqual(getattr(test_obj, 'max_health'), 100)
         self.assertEqual(getattr(test_obj, 'mana'), 50)
+        self.assertEqual(getattr(test_obj, 'max_mana'), 50)
+        self.assertEqual(getattr(test_obj, 'weapon'), None)
+        self.assertEqual(getattr(test_obj, 'spell'), None)
 
 class TestHumanIsAlive(unittest.TestCase):
     def test_human_is_alive_method_works_as_expected(self):
@@ -179,6 +221,92 @@ class TestHumanTakeMana(unittest.TestCase):
         test_obj.take_mana(mana_points)
 
         self.assertEqual(getattr(test_obj, 'mana'), 75)
+
+class TestHumanEquip(unittest.TestCase):
+    def test_human_equip_raises_typeerror_if_arg_is_not_weapon(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+        exc = None
+
+        test_weapon = ['testing']
+
+        try:
+            test_obj.equip(test_weapon)
+        except TypeError as err:
+            exc = err
+
+        self.assertIsNotNone(exc)
+        self.assertEqual(str(exc), 'Argument must be of "Weapon" type.')
+
+    def test_human_equip_initializes_object_with_weapon(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+
+        test_weapon = Weapon(name="The Axe of Destiny", damage=20)
+
+        test_obj.equip(test_weapon)
+
+        self.assertEqual(getattr(test_obj, 'weapon'), test_weapon)
+
+class TestHumanLearn(unittest.TestCase):
+    def test_human_learn_raises_typeerror_if_arg_is_not_spell(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+        exc = None
+
+        test_spell = ['testing']
+
+        try:
+            test_obj.learn(test_spell)
+        except TypeError as err:
+            exc = err
+
+        self.assertIsNotNone(exc)
+        self.assertEqual(str(exc), 'Argument must be of "Spell" type.')
+
+    def test_human_learn_initializes_object_with_spell(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+
+        test_spell = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
+
+        test_obj.learn(test_spell)
+
+        self.assertEqual(getattr(test_obj, 'spell'), test_spell)
+
+class TestHumanCanCast(unittest.TestCase):
+    def test_human_can_cast_returns_false_if_no_spell_learned(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+
+        self.assertEqual(test_obj.can_cast(), False)
+
+    def test_human_can_cast_returns_true_if_human_has_enough_mana_to_cast_spell(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+
+        test_spell = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
+
+        test_obj.learn(test_spell)
+
+        self.assertEqual(test_obj.can_cast(), True)
+
+    def test_human_can_cast_returns_false_if_human_has_got_enough_mana_to_cast_spell(self):
+        test_health = 100
+        test_mana = 100
+        test_obj = Human(test_health, test_mana)
+
+        test_spell = Spell(name="Fireball", damage=30, mana_cost=150, cast_range=2)
+
+        test_obj.learn(test_spell)
+
+        self.assertEqual(test_obj.can_cast(), False)
 
 if __name__ == '__main__':
     unittest.main()
