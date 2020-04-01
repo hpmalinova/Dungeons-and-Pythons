@@ -3,7 +3,7 @@ class Spell:
 		self.name = name
 		
 		assert damage >= 0, 'Damage dealt can`t be a negative number.'
-		self.damage = name
+		self.damage = damage
 
 		assert mana_cost >= 0, 'Mana cost can`t be a negative number.'
 		self.mana_cost = mana_cost
