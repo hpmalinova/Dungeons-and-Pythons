@@ -2,6 +2,7 @@
 
 from weapon import Weapon
 from spell import Spell
+from armor import Armor
 
 class Human:
     # Constructor
@@ -17,18 +18,18 @@ class Human:
 
         self.weapon = None
         self.spell = None
+        self.armor = None
 
     # Public
 
     def is_alive(self):                                                         
         return self.health != 0
 
-    def can_cast(self):                                                                     
-        if self.spell is None:
-            print("You don't know any spells.")
-            return False
-        else:
+    def can_cast(self):    # TODO
+        if self.spell:
             return self.mana >= getattr(self.spell, 'mana_cost')
+        else:
+            return False
 
     def get_health(self):                                                       
         return self.health
@@ -44,26 +45,50 @@ class Human:
         else:
             self.health += healing_points
 
-    def take_damage(self, damage):                                              
+    def take_damage(self, damage):                                         
         if type(damage) is not float and type(damage) is not int:
             raise TypeError('Damage must be of "int" / "float" type.')
 
-        if damage > self.health:
-            self.health = 0
-        else:
-            self.health -= damage
+        armor_points = 0    
 
-    def equip(self, weapon):    
-        if type(weapon) is not Weapon:
-            raise TypeError('Argument must be of "Weapon" type.')
-        
-        self.weapon = weapon
+        if self.armor:
+            armor_points = getattr(self.armor, 'armor_points')
+
+        if damage > armor_points:
+            damage -= armor_points
+
+            self.health = (self.health - damage) if damage < self.health else 0
+                
+    def equip(self, weapon=None, armor=None): # TODO така или отделни ф-ии equip_armor/equip_weapon
+        if weapon:
+            if type(weapon) is not Weapon:
+                raise TypeError('Argument must be of "Weapon" type.')
+
+            if self.weapon:
+                if self.weapon < weapon:
+                    self.weapon = weapon
+            else:
+                self.weapon = weapon       
+        if armor:
+            if type(armor) is not Armor:
+                raise TypeError('Argument must be of "Armor" type.')
+            if self.armor:
+                if self.armor < armor:
+                    self.armor = armor
+            else:
+                self.armor = armor   
 
     def learn(self, spell):   
         if type(spell) is not Spell:
             raise TypeError('Argument must be of "Spell" type.')
-        
-        self.spell = spell
+        if self.spell:
+            if self.spell < spell:
+                    self.spell = spell
+        else:
+            self.spell = spell        
+
+    def attack_with_strongest_mean(self):
+        pass       
 
     # Static
 
