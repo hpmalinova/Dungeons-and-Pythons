@@ -9,13 +9,11 @@ class TestHeroValidation(unittest.TestCase):
     def test_hero_validation_raises_typeerror_if_name_not_str(self):
         name = ['Bron']
         title = 'Dragonslayer'
-        health = 100
-        mana = 100
         mana_regeneration_rate = 2
         exc = None
 
         try:
-            Hero.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
+            Hero.validate_input_hero(name, title, mana_regeneration_rate)
         except TypeError as err:
             exc = err
 
@@ -25,13 +23,11 @@ class TestHeroValidation(unittest.TestCase):
     def test_hero_validation_raises_typeerror_if_title_not_str(self):
         name = 'Bron'
         title = ['Dragonslayer']
-        health = 100
-        mana = 100
         mana_regeneration_rate = 2
         exc = None
 
         try:
-            Hero.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
+            Hero.validate_input_hero(name, title, mana_regeneration_rate)
         except TypeError as err:
             exc = err
 
@@ -41,13 +37,11 @@ class TestHeroValidation(unittest.TestCase):
     def test_hero_validation_raises_typeerror_if_mana_regen_rate_not_int(self):
         name = 'Bron'
         title = 'Dragonslayer'
-        health = 100
-        mana = 100
         mana_regeneration_rate = 'p'
         exc = None
 
         try:
-            Hero.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
+            Hero.validate_input_hero(name, title, mana_regeneration_rate)
         except TypeError as err:
             exc = err
 
@@ -57,13 +51,11 @@ class TestHeroValidation(unittest.TestCase):
     def test_hero_validation_raises_exception_if_mana_regen_rate_negative(self):
         name = 'Bron'
         title = 'Dragonslayer'
-        health = 100
-        mana = 100
         mana_regeneration_rate = -5
         exc = None
 
         try:
-            Hero.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
+            Hero.validate_input_hero(name, title, mana_regeneration_rate)
         except Exception as err:
             exc = err
 
