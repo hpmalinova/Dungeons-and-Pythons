@@ -131,7 +131,7 @@ class TestHeroAttack(unittest.TestCase):
   
         self.assertEqual(test_obj.attack(by = 'magic'), 0)
 
-    def test_hero_attack_returns_spell_damage_if_equipped_spell_and_argument_is_magic(self):
+    def test_hero_attack_returns_spell_damage_and_reduces_mana_if_equipped_spell_and_argument_is_magic(self):
         test_obj = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
 
         test_spell = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
@@ -139,6 +139,7 @@ class TestHeroAttack(unittest.TestCase):
         test_obj.learn(test_spell)
   
         self.assertEqual(test_obj.attack(by = 'magic'), 30)
+        self.assertEqual(getattr(test_obj, 'mana'), 50)
 
     def test_hero_attack_returns_zero_if_equipped_spell_but_mana_cost_greater_than_human_mana(self):
         test_obj = Hero(name="Bron", title="Dragonslayer", health=100, mana=20, mana_regeneration_rate=2)
