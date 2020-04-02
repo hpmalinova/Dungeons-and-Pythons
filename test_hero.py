@@ -170,5 +170,29 @@ class TestHeroAttack(unittest.TestCase):
         self.assertIsNotNone(exc)
         self.assertEqual(str(exc), 'Unrecognized means of attack.')
 
+class TestHeroTakeMana(unittest.TestCase):
+    def test_hero_take_mana_method_cannot_give_more_mana_than_max(self):
+        test_obj = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        max_mana = 100
+        mana_points = 200
+
+        setattr(test_obj,'mana', 25)
+
+        test_obj.take_mana(mana_points)
+
+        self.assertEqual(getattr(test_obj,'mana'), max_mana)
+
+    def test_hero_take_mana_method_gives_mana_equal_to_mana_points(self):
+        test_obj = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        max_mana = 100
+        mana_points = 50
+        expected_result = 75
+        
+        setattr(test_obj,'mana', 25)
+
+        test_obj.take_mana(mana_points)
+
+        self.assertEqual(getattr(test_obj,'mana'), expected_result)
+
 if __name__ == '__main__':
     unittest.main()

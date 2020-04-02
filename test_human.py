@@ -192,36 +192,6 @@ class TestHumanTakeHealing(unittest.TestCase):
 
         self.assertEqual(getattr(test_obj, 'health'), 75)
 
-class TestHumanTakeMana(unittest.TestCase):
-    def test_human_take_mana_method_cannot_give_more_mana_than_max(self):
-        test_health = 50
-        test_mana = 50
-
-        max_mana = 50
-        mana_points = 50
-       
-        test_obj = Human(test_health, test_mana)
-
-        setattr(test_obj,'mana', 25)
-
-        test_obj.take_mana(mana_points)
-
-        self.assertEqual(getattr(test_obj,'mana'), max_mana)
-
-    def test_human_take_mana_method_gives_mana_equal_to_mana_points(self):
-        test_health = 100
-        test_mana = 100
-
-        mana_points = 50
-       
-        test_obj = Human(test_health, test_mana)
-
-        setattr(test_obj, 'mana', 25)
-
-        test_obj.take_mana(mana_points)
-
-        self.assertEqual(getattr(test_obj, 'mana'), 75)
-
 class TestHumanEquip(unittest.TestCase):
     def test_human_equip_raises_typeerror_if_arg_is_not_weapon(self):
         test_health = 100
