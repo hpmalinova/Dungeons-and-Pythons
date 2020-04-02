@@ -5,7 +5,7 @@ from human import Human
 class Hero(Human):
     # Constructor
 
-    def __init__(self, name, title, health, mana, mana_regeneration_rate):                  
+    def __init__(self, name, title, health, mana, mana_regeneration_rate):
         super().__init__(health, mana)
 
         self.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
@@ -39,6 +39,12 @@ class Hero(Human):
                 # TODO: Handling cast_range.
         else:
             raise Exception('Unrecognized means of attack.')
+
+    def take_mana(self, mana_points):                                           
+        if self.mana + mana_points > self.max_mana:
+            self.mana = self.max_mana
+        else:
+            self.mana += mana_points
 
     # Static
 

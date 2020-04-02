@@ -44,12 +44,6 @@ class Human:
         else:
             self.health += healing_points
 
-    def take_mana(self, mana_points):                                           
-        if self.mana + mana_points > self.max_mana:
-            self.mana = self.max_mana
-        else:
-            self.mana += mana_points
-
     def take_damage(self, damage):                                              
         if type(damage) is not float and type(damage) is not int:
             raise TypeError('Damage must be of "int" / "float" type.')
