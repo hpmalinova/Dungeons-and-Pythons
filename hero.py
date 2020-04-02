@@ -35,6 +35,7 @@ class Hero(Human):
                 print('Not enough mana to cast the spell.')
                 return 0
             else:
+                self.mana -= getattr(self.spell, 'mana_cost')
                 return getattr(self.spell, 'damage')
                 # TODO: Handling cast_range.
         else:
