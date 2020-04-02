@@ -8,7 +8,7 @@ class Hero(Human):
     def __init__(self, name, title, health, mana, mana_regeneration_rate):
         super().__init__(health, mana)
 
-        self.validate_input_hero(name, title, health, mana, mana_regeneration_rate)
+        self.validate_input_hero(name, title, mana_regeneration_rate)
 
         self.name = name
         self.title = title
@@ -49,7 +49,7 @@ class Hero(Human):
     # Static
 
     @staticmethod
-    def validate_input_hero(name, title, health, mana, mana_regeneration_rate):             
+    def validate_input_hero(name, title, mana_regeneration_rate):             
         if type(name) is not str:
             raise TypeError('Name must be of "str" type.')
         elif type(title) is not str:
