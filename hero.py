@@ -2,6 +2,7 @@
 
 from human import Human
 
+
 class Hero(Human):
     # Constructor
 
@@ -16,53 +17,48 @@ class Hero(Human):
 
     # Public
 
-    def known_as(self):                                                                     
+    def known_as(self):
         return f'{self.name} the {self.title}'
 
-    def attack(self, by = None): # TODO: if no arguments - attack with the strongest attack                                                     
-        if type(by) is not str: 
-            raise TypeError('Means of attack must be specified.')
+    def take_mana(self, mana_points):
+        if self.mana + mana_points > self.max_mana:
+            self.mana = self.max_mana
+        else:
+            self.mana += mana_points
 
-        if by is 'weapon':
+    def attack(self, by=None):
+        if not by:
+            return self.get_strongest_mean()
+
+        if by == 'weapon':
             return self.__attack_by_weapon()
-        if by is 'magic':
+        if by == 'magic':
             return self.__attack_by_magic()
-        
+
         raise Exception('Unrecognized means of attack.')
 
-    def __get_stronger_attack(self): #TODO
-        pass
-
     def __attack_by_weapon(self):
-        if self.weapon is None:
-            return 0
+        if not self.weapon:
+            return None
         else:
-            return getattr(self.weapon, 'damage')         
+            return self.weapon
 
     def __attack_by_magic(self):
         if not self.spell:
             print("You don't know any spells.")
-            return 0
+            return None
         if self.can_cast():
             self.mana -= getattr(self.spell, 'mana_cost')
-            return getattr(self.spell, 'damage')
-        else: 
-            print('Not enough mana to cast the spell.')
-            return 0   
-
-        # TODO: Handling cast_range.
-   
-
-    def take_mana(self, mana_points):  
-        if self.mana + mana_points > self.max_mana:
-            self.mana = self.max_mana
+            return self.spell
         else:
-            self.mana += mana_points      
+            print('Not enough mana to cast the spell.')
+            return None
+        # TODO: Handling cast_range.
 
     # Static
 
     @staticmethod
-    def validate_input_hero(name, title, mana_regeneration_rate):             
+    def validate_input_hero(name, title, mana_regeneration_rate):
         if type(name) is not str:
             raise TypeError('Name must be of "str" type.')
         elif type(title) is not str:
@@ -71,12 +67,3 @@ class Hero(Human):
             raise TypeError('Mana regeneration rate must be of "int" type.')
         elif mana_regeneration_rate < 0:
             raise Exception('Mana regeneration rate cannot be negative.')
-
-    # Equipment
-
-    def drink_potion(self, potion):
-        if getattr(potion, 'potion_type') == 'mana':
-            self.take_mana(potion.points)
-
-        if getattr(potion, 'potion_type') == 'health':
-            self.take_healing(potion.points)      
