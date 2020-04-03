@@ -4,6 +4,7 @@ import unittest
 from human import Human
 from weapon import Weapon
 from spell import Spell
+from armor import Armor
 
 class TestHumanValidation(unittest.TestCase):
     def test_human_validate_input_raises_typeerror_if_health_is_not_int(self):
@@ -117,7 +118,7 @@ class TestHumanGetMana(unittest.TestCase):
 
         self.assertEqual(test_obj.get_mana(), 55)
 
-class TestHumanTakeDamage(unittest.TestCase):
+class TestHumanTakeDamageWithNoArmor(unittest.TestCase):
     def test_human_take_damage_method_raises_typeerror_if_damage_is_not_int_or_float(self):
         test_health = 100
         test_mana = 55
@@ -151,6 +152,27 @@ class TestHumanTakeDamage(unittest.TestCase):
         test_obj.take_damage(25)
 
         self.assertEqual(getattr(test_obj, 'health'), 25)
+
+class TestHumanTakeDamageWithArmor(unittest.TestCase):
+    def test_when_human_has_less_armor_than_the_damage_taken_then_take_damage(self):    
+        human = Human(health=100, mana=100)
+        armor = Armor(name="Dragon Armor", armor_points=10)
+        armor.equip_to(human)
+
+        human.take_damage(50)
+
+        self.assertEqual(getattr(human, 'health'), 60)
+        self.assertEqual(getattr(human, 'armor'), armor)
+
+    def test_when_human_has_more_armor_than_damage_taken_then_dont_take_damage(self):    
+        human = Human(health=100, mana=100)
+        armor = Armor(name="Dragon Armor", armor_points=30)
+        armor.equip_to(human)
+
+        human.take_damage(20)
+
+        self.assertEqual(getattr(human, 'health'), 100)        
+        self.assertEqual(getattr(human, 'armor'), armor)
 
 class TestHumanTakeHealing(unittest.TestCase):
     def test_human_take_healing_method_cannot_heal_the_dead(self):
@@ -277,6 +299,29 @@ class TestHumanCanCast(unittest.TestCase):
         test_obj.learn(test_spell)
 
         self.assertEqual(test_obj.can_cast(), False)
+
+class TestHumanEquipBetterItem(unittest.TestCase):
+    def test_when_new_item_is_better_than_the_old_item_then_equip_the_new_item(self):
+        human = Human(health=100, mana=100)
+        
+        armor_old = Armor(name="Just an armor", armor_points=5)
+        armor_old.equip_to(human)
+
+        armor_new = Armor(name="Dragon Armor", armor_points=30)
+        armor_new.equip_to(human)
+
+        self.assertEqual(getattr(human, 'armor'), armor_new)  
+
+    def test_when_new_item_is_worse_than_the_old_item_then_stay_with_the_new_item(self):
+        human = Human(health=100, mana=100)
+        
+        armor_old = Armor(name="Dragon Armor", armor_points=30)
+        armor_old.equip_to(human)
+
+        armor_new = Armor(name="Just an armor", armor_points=5)
+        armor_new.equip_to(human)
+
+        self.assertEqual(getattr(human, 'armor'), armor_old)     
 
 if __name__ == '__main__':
     unittest.main()
