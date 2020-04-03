@@ -62,85 +62,59 @@ class Dungeon:
         return False
 
     def move_hero(self, direction):                                             # TODO: Test
-        # Probably the change_positions part should be another function.
+        # way = {'up' : {'x': -1, 'y': 0}, 'down' : {'x': 1, 'y': 0}, 'left' : {'x': 0, 'y': -1}, 'right' : {'x': 0, 'y': 1}
+        # way[direction][x]
         way = {'up': (-1, 0), 'down':(1, 0), 'left':(0, -1), 'right':(0, 1)}
-
+            
         if type(direction) is not str:
-            raise TypeError('Direction must be of "str" type.')
+                raise TypeError('Direction must be of "str" type.')
         elif direction not in way.keys():
-            raise Exception('Unrecognized direction.')
-        elif self.hero == None:
-            raise Exception('No hero on the map.')
+                raise Exception('Unrecognized direction.')
+            elif self.hero == None:
+                raise Exception('No hero on the map.')
 
         new_pos_x = self.pos_x + way[direction][0]
         new_pos_y = self.pos_y + way[direction][1]
-
-        if new_pos_x < 0 or new_pos_x >= self.map_size_x or\
-            new_pos_y < 0 or new_pos_y >= self.map_size_y or\
-            self.map[new_pos_x][new_pos_y] == '#':
+            
+        if  self.__check_if_invalid_position(new_pos_x, new_pos_y) or \
+            self.__check_for_obstacle(new_pos_x, new_pos_y):
+            
             print('You cannot go there!')
             return False
-        elif self.map[new_pos_x][new_pos_y] == '.':
-            self.map[new_pos_x][new_pos_y] = 'H'
-            self.map[self.pos_x][self.pos_y] = self.last_step
-            
-            self.last_step = '.'
-            
-            self.pos_x = new_pos_x
-            self.pos_y = new_pos_y
-
+                
+        if self.__check_if_walkable_path(new_pos_x, new_pos_y):
+            self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             return True
-        elif self.map[new_pos_x][new_pos_y] == 'T':
-            self.map[new_pos_x][new_pos_y] = 'H'
-            self.map[self.pos_x][self.pos_y] = self.last_step
-
-            self.last_step = '.'
             
-            self.pos_x = new_pos_x
-            self.pos_y = new_pos_y
-
+        if self.__check_if_treasure(new_pos_x, new_pos_y):
+            self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('Found treasure!')
-            self.open_treasure()
-
+            self.pick_treasure() # po uslovie e pick treasure
             return True
-        elif self.map[new_pos_x][new_pos_y] == 'E':
-            self.fight()
+                
+        if self.__check_if_enemy(new_pos_x, new_pos_y):
+            self.fight() # ruk da pishem dali e umrql ili ne? // return true/false
 
             if self.hero.is_alive():
-                self.map[new_pos_x][new_pos_y] = 'H'
-                self.map[self.pos_x][self.pos_y] = self.last_step
-
-                self.last_step = '.'
-                
-                self.pos_x = new_pos_x
-                self.pos_y = new_pos_y
-
-                return True
+                self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
+                        return True 
             else:
                 self.map[self.pos_x][self.pos_y] = self.last_step
-                
+                    
                 if self.spawn(self.hero):
                     print('Hero Respawned.')
                 else:
                     print('Hero could not respawn.')
 
                 return False
-        elif self.map[new_pos_x][new_pos_y] == 'S':
-            self.map[new_pos_x][new_pos_y] = 'H'
-            self.map[self.pos_x][self.pos_y] = self.last_step
-
-            self.last_step = 'S'
-                
-            self.pos_x = new_pos_x
-            self.pos_y = new_pos_y
-
+                    
+        if self.__check_if_spawn_point(new_pos_x, new_pos_y):
+            self.__move_hero_to_position(new_pos_x, new_pos_y, 'S')
             return True
-        else:
-            self.map[new_pos_x][new_pos_y] = 'H'
-            self.map[self.pos_x][self.pos_y] = self.last_step
-
+     
+        if self.__check_if_gateway(new_pos_x, new_pos_y):
+            self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('CONGRATULATIONS!\nYOU WON!')
-
             return True
 
     def fight(self):                                                            # TODO: Implement + Test
@@ -149,8 +123,40 @@ class Dungeon:
     def hero_attack(self, by):                                                  # TODO: Implement + Test
         pass
 
-    def open_treasure(self):                                                    # TODO: Implement + Test
+    def pick_treasure(self):                                                    # TODO: Implement + Test
         pass
+
+    # Help functions for move:
+        
+    def __check_if_invalid_position(self, new_pos_x, new_pos_y):
+    return new_pos_x < 0 or new_pos_x >= self.map_size_x or\
+        new_pos_y < 0 or new_pos_y >= self.map_size_y
+        
+    def __check_if_obstacle(self, new_pos_x, new_pos_y):
+    return self.map[new_pos_x][new_pos_y] == '#'    
+    
+    def __check_if_walkable_path(self, new_pos_x, new_pos_y):
+    return self.map[new_pos_x][new_pos_y] == '.'
+        
+    def __check_if_treasure(self, new_pos_x, new_pos_y):
+        return self.map[new_pos_x][new_pos_y] == 'T'    
+    
+    def __check_if_enemy(self, new_pos_x, new_pos_y):
+    return self.map[new_pos_x][new_pos_y] == 'E'
+        
+    def __check_if_spawn_point(new_pos_x, new_pos_y):
+    return self.map[new_pos_x][new_pos_y] == 'S'
+
+    def __check_if_gateway(self, new_pos_x, new_pos_y):
+    return self.map[new_pos_x][new_pos_y] == 'G'
+    
+    def __move_hero_to_position(new_pos_x, new_pos_y, current_step):
+        self.map[self.pos_x][self.pos_y] = self.last_step
+        self.last_step = current_step
+                
+        self.map[new_pos_x][new_pos_y] = 'H'
+        self.pos_x = new_pos_x
+        self.pos_y = new_pos_y
 
     # Static
 
