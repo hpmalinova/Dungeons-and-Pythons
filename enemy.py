@@ -1,6 +1,8 @@
 # enemy.py
 
 from human import Human
+from weapon import Weapon
+
 
 class Enemy(Human):
     # Constructor
@@ -17,21 +19,12 @@ class Enemy(Human):
         return False
 
     def attack(self):
-        weapon_damage = 0
-        spell_damage = 0
+        strongest_weapon = self.get_strongest_mean()
 
-        if self.weapon is not None:
-            weapon_damage = getattr(self.weapon, 'damage')
-        if self.spell is not None and self.mana >= getattr(self.spell, 'mana_cost'):
-            spell_damage = getattr(self.spell, 'damage')
+        if not strongest_weapon or self.damage > getattr(strongest_weapon, 'damage'):
+            return Weapon('Fists', self.damage)
 
-        max_damage = max(self.damage, weapon_damage, spell_damage)
-
-        if max_damage == spell_damage:
-            self.mana -= getattr(self.spell, 'mana_cost')
-            return getattr(self.spell, 'damage')
-        else:
-            return max_damage
+        return strongest_weapon
 
     # Static
 

@@ -3,11 +3,13 @@
 from weapon import Weapon
 from spell import Spell
 from armor import Armor
+from potion import Potion
+
 
 class Human:
     # Constructor
 
-    def __init__(self, health, mana):                                           
+    def __init__(self, health, mana):
         self.validate_input_human(health, mana)
 
         self.max_health = health
@@ -22,22 +24,16 @@ class Human:
 
     # Public
 
-    def is_alive(self):                                                         
+    def is_alive(self):
         return self.health != 0
 
-    def can_cast(self):    # TODO
+    def can_cast(self):
         if self.spell:
             return self.mana >= getattr(self.spell, 'mana_cost')
         else:
             return False
 
-    def get_health(self):                                                       
-        return self.health
-
-    def get_mana(self):                                                         
-        return self.mana
-
-    def take_healing(self, healing_points):                                     
+    def take_healing(self, healing_points):
         if self.health == 0:
             return False
         elif healing_points + self.health > self.max_health:
@@ -45,11 +41,11 @@ class Human:
         else:
             self.health += healing_points
 
-    def take_damage(self, damage):                                         
+    def take_damage(self, damage):
         if type(damage) is not float and type(damage) is not int:
             raise TypeError('Damage must be of "int" / "float" type.')
 
-        armor_points = 0    
+        armor_points = 0
 
         if self.armor:
             armor_points = getattr(self.armor, 'armor_points')
@@ -58,42 +54,64 @@ class Human:
             damage -= armor_points
 
             self.health = (self.health - damage) if damage < self.health else 0
-                
-    def equip(self, weapon=None, armor=None): # TODO така или отделни ф-ии equip_armor/equip_weapon
-        if weapon:
-            if type(weapon) is not Weapon:
-                raise TypeError('Argument must be of "Weapon" type.')
 
-            if self.weapon:
-                if self.weapon < weapon:
-                    self.weapon = weapon
-            else:
-                self.weapon = weapon       
-        if armor:
-            if type(armor) is not Armor:
-                raise TypeError('Argument must be of "Armor" type.')
-            if self.armor:
-                if self.armor < armor:
-                    self.armor = armor
-            else:
-                self.armor = armor   
+    # Equip
 
-    def learn(self, spell):   
-        if type(spell) is not Spell:
-            raise TypeError('Argument must be of "Spell" type.')
-        if self.spell:
-            if self.spell < spell:
-                    self.spell = spell
+    def equip(self, item):
+        equipable_items = {Weapon: 'weapon', Armor: 'armor', Spell: 'spell'}
+        drinkable_items = [Potion]
+
+        my_type = type(item)
+
+        if my_type in equipable_items.keys():
+            self.equip_item(item)
+        if my_type in drinkable_items:
+            self.drink_potion(item)
         else:
-            self.spell = spell        
+            raise TypeError('Invalid item type.')
 
-    def attack_with_strongest_mean(self):
-        pass       
+    def equip_item(self, item):
+        items_map = {Weapon: 'weapon', Armor: 'armor', Spell: 'spell'}
+
+        my_type = type(item)
+        attribute_to_change = items_map[my_type]
+
+        if my_type in items_map.keys():
+            equipped_item = getattr(self, attribute_to_change)
+            if equipped_item:
+                if equipped_item < item:
+                    setattr(self, attribute_to_change)
+            else:
+                setattr(self, attribute_to_change, item)
+
+    def drink_potion(self, potion):
+        potion_type = getattr(potion, 'potion_type')
+        points = getattr(potion, 'points')
+
+        if potion_type == 'mana':
+            self.take_mana(points)
+
+        if potion_type == 'health':
+            self.take_healing(points)
+
+    # Attack
+
+    def get_strongest_mean(self):  # weapon VS spell
+        weapon_damage = getattr(self.weapon, 'damage') if self.weapon else 0
+        spell_damage = getattr(self.spell, 'damage') if self.spell and self.can_cast() else 0
+
+        if weapon_damage == 0 and spell_damage == 0:
+            return None
+        elif weapon_damage >= spell_damage:
+            return self.weapon
+        else:
+            self.mana -= getattr(self.spell, 'mana_cost')
+            return self.spell
 
     # Static
 
     @staticmethod
-    def validate_input_human(health, mana):                                     
+    def validate_input_human(health, mana):
         if type(health) is not int and type(health) is not float:
             raise TypeError('Health must be of "int" / "float" type.')
         elif type(mana) is not int:
@@ -102,3 +120,10 @@ class Human:
             raise Exception('Health cannot be less than 0.')
         elif mana < 0:
             raise Exception('Mana cannot be less than 0.')
+
+
+if __name__ == '__main__':
+    h = Human(50, 30)
+    a = Armor('a', 50)
+    h.equip_item(a)
+    print(h.armor)
