@@ -25,8 +25,7 @@ class Dungeon:
         self.map_size_y = len(self.map[0])
 
         self.hero = None
-        self.pos_x = None
-        self.pos_y = None
+        self.hero_coordinates = {'x': -1, 'y': -1}
 
         self.last_step = None
         self.saved_hero = None
@@ -66,14 +65,17 @@ class Dungeon:
 
         for row in range(0, len(self.map)):
             for col in range(0, len(self.map[row])):
-                if self.map[row][col] == 'S':
+                if self._check_if_spawn_point(row, col):
                     self.hero = hero
                     self.saved_hero = hero
-                    self.pos_x = row
-                    self.pos_y = col
+
+                    self.hero_coordinates['x'] = row
+                    self.hero_coordinates['y'] = col
+
                     self.map[row][col] = 'H'
                     self.last_step = '.'
                     return True
+
         return False
 
     def move_hero(self, direction):
@@ -89,8 +91,8 @@ class Dungeon:
         elif not self.hero:
                 raise Exception('No hero on the map.')
 
-        new_pos_x = self.pos_x + way[direction]['x']
-        new_pos_y = self.pos_y + way[direction]['y']
+        new_pos_x = self.hero_coordinates['x'] + way[direction]['x']
+        new_pos_y = self.hero_coordinates['y'] + way[direction]['y']
 
         self.hero.regenerate_mana()  # Handle mana regen 1
 
@@ -113,21 +115,22 @@ class Dungeon:
             enemy = Enemy(50, 50, 20)
 
             print('A fight is started between:')
-            print(f'Our hero - {self.hero.known_as()}(health = {self.hero.get_health()}, mana = {self.hero.get_mana()})\nand' )
-            print(f'Enemey(health={enemy.get_health()}, mana={enemy.get_mana()}, damage={getattr(enemy,"damage")})')
-            print()
-            
+            print(f'Our hero - {self.hero.known_as()} \
+                (health = {self.hero.get_health()}, mana = {self.hero.get_mana()})\nand')
+
+            print(f'Enemey(health={enemy.get_health()}, \
+                mana={enemy.get_mana()}, damage={getattr(enemy,"damage")})')
+
             self._fight(enemy)
 
             if self.hero.is_alive():
                 print('Enemy is dead!')
 
                 self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
-
             else:
                 print('Hero died!')
 
-                self.map[self.pos_x][self.pos_y] = self.last_step
+                self.map[self.hero_coordinates['x']][self.hero_coordinates['y']] = self.last_step
                 self.hero = None
 
                 if self.spawn(self.saved_hero):
@@ -145,11 +148,11 @@ class Dungeon:
             print('CONGRATULATIONS!\nYOU WON!')
             return True
 
-    def _fight(self, enemy):                                                    # TODO: Test
-        for index in range(0,5):
-            attack_type = {Spell:'casts a', Weapon:'hits with'}
-            self.hero.take_mana(getattr(self.hero,'mana_regeneration_rate'))    # Handle mana regen 2
-            
+    def _fight(self, enemy):                                                  # TODO: Test
+        for index in range(0, 5):
+            attack_type = {Spell: 'casts a', Weapon: 'hits with'}
+            self.hero.regenerate_mana()
+
             hero_weapon = self.hero.attack()
             if hero_weapon is not None:
                 hero_weapon_name = getattr(hero_weapon, 'name')
@@ -164,7 +167,7 @@ class Dungeon:
             else:
                 print(f'Hero {attack_type[type(hero_weapon)]} {hero_weapon_name}, hits enemy for {hero_weapon_damage}.')
                 enemy.take_damage(hero_weapon_damage)
-            
+
             print(f'Enemy health is {enemy.get_health()}.')
 
             if not enemy.is_alive():
@@ -179,13 +182,32 @@ class Dungeon:
 
         print('Hero got tired and let his guard down.')
         setattr(self.hero, 'health', 0)
-        return 
+        return
 
     def hero_attack(self, by):                                                  # TODO: Implement + Test
-        # IF TRUE : WHILE WALK, TAKE DAMAGE, CALL FIGHT
         pass
+        # IF TRUE : WHILE WALK, TAKE DAMAGE, CALL FIGHT
 
-    # Help Enemy move to Hero:
+    def check_for_enemy(self, cast_range):
+        enemy_position = {'x': -1, 'y': -1}
+
+        way = {'up': {'x': -1, 'y': 0},
+               'down': {'x': 1, 'y': 0},
+               'left': {'x': 0, 'y': -1},
+               'right': {'x': 0, 'y': 1}}
+
+        for i in range(0, cast_range):
+            for direction in way.keys():
+                x = self.hero_coordinates['x'] + (i * way[direction]['x'])
+                y = self.hero_coordinates['y'] + (i * way[direction]['y'])
+
+                if self._check_if_enemy(x, y):
+                    enemy_position = {'x': x, 'y': y}
+                    return enemy_position
+
+        return enemy_position
+
+    # Help Enemy move to Hero
 
     def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test
         pass
@@ -219,12 +241,12 @@ class Dungeon:
         return self.map[new_pos_x][new_pos_y] == 'G'
 
     def __move_hero_to_position(self, new_pos_x, new_pos_y, current_step):      # DONE
-        self.map[self.pos_x][self.pos_y] = self.last_step
+        self.map[self.hero_coordinates['x']][self.hero_coordinates['y']] = self.last_step
         self.last_step = current_step
 
         self.map[new_pos_x][new_pos_y] = 'H'
-        self.pos_x = new_pos_x
-        self.pos_y = new_pos_y
+        self.hero_coordinates['x'] = new_pos_x
+        self.hero_coordinates['y'] = new_pos_y
 
     # Static
 
@@ -294,6 +316,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
+    # main()
     obj = Dungeon('level1.txt')
     obj.print_map()

@@ -14,15 +14,9 @@ from potion import Potion
 class TestDungeonValidation(unittest.TestCase):
     def test_dungeon_validation_raises_typeerror_if_filename_not_str(self):
         test_filename = ['test']
-        exc = None
 
-        try:
+        with self.assertRaisesRegex(TypeError, 'Filename must be of "str" type.'):
             Dungeon.validate_input_dungeon(test_filename)
-        except TypeError as err:
-            exc = err
-
-        self.assertIsNotNone(exc)
-        self.assertEqual(str(exc), 'Filename must be of "str" type.')
 
 
 class TestDungeonInit(unittest.TestCase):
