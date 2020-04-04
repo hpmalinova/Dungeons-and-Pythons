@@ -39,6 +39,9 @@ class Human:
         else:
             return False
 
+    def take_mana(self):
+        pass
+
     def take_healing(self, healing_points):
         if self.health == 0:
             return False
@@ -71,7 +74,7 @@ class Human:
 
         if my_type in equipable_items.keys():
             self.equip_item(item)
-        elif my_type in drinkable_items: # Тук беше if и винаги влизаше в тайперър-а
+        elif my_type in drinkable_items:
             self.drink_potion(item)
         else:
             raise TypeError('Invalid item type.')
@@ -86,7 +89,7 @@ class Human:
             equipped_item = getattr(self, attribute_to_change)
             if equipped_item:
                 if equipped_item < item:
-                    setattr(self, attribute_to_change)
+                    setattr(self, attribute_to_change, item)
             else:
                 setattr(self, attribute_to_change, item)
 
@@ -126,10 +129,3 @@ class Human:
             raise Exception('Health cannot be less than 0.')
         elif mana < 0:
             raise Exception('Mana cannot be less than 0.')
-
-
-if __name__ == '__main__':
-    h = Human(50, 30)
-    a = Armor('a', 50)
-    h.equip_item(a)
-    print(h.armor)
