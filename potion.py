@@ -17,7 +17,7 @@ class Potion(Treasure):
         return cls(arguments[0], int(arguments[1]))
 
     def __repr__(self):
-        return potion_type + ' potion'
+        return self.potion_type + ' potion'
 
     @staticmethod
     def validate_potion_type(potion_type):
