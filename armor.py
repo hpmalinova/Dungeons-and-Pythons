@@ -7,9 +7,6 @@ class Armor(Treasure):
         assert armor_points >= 0, 'Ivalid armor points'
         self.armor_points = armor_points
 
-    def equip_to(self, human):
-        human.equip(armor=self)
-
     def __eq__(self, other):
         return self.name == other.name and self.armor_points == other.armor_points
 
