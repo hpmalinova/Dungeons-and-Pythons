@@ -19,6 +19,9 @@ class Potion(Treasure):
     def __repr__(self):
         return self.potion_type + ' potion'
 
+    def __eq__(self, other):
+        return self.potion_type == other.potion_type and self.points == other.points
+
     @staticmethod
     def validate_potion_type(potion_type):
         assert potion_type in Potion.potion_types, 'Invalid potion type'
