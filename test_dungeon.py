@@ -4,6 +4,7 @@ import unittest
 from dungeon import Dungeon
 from hero import Hero
 
+
 class TestDungeonValidation(unittest.TestCase):
     def test_dungeon_validation_raises_typeerror_if_filename_not_str(self):
         test_filename = ['test']
@@ -17,19 +18,19 @@ class TestDungeonValidation(unittest.TestCase):
         self.assertIsNotNone(exc)
         self.assertEqual(str(exc), 'Filename must be of "str" type.')
 
+
 class TestDungeonInit(unittest.TestCase):
     def test_dungeon_init_initializse_object_as_expected(self):
         test_filename = 'level1.txt'
-
-        expected_result = [ ['S','.','#','#','.','.','.','.','.','T'],
-                            ['#', 'T', '#', '#', '.', '.', '#', '#', '#', '.'],
-                            ['#', '.', '#', '#', '#', 'E', '#', '#', '#', 'E'],
-                            ['#', '.', 'E', '.', '.', '.', '#', '#', '#', '.'],
-                            ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G'] ] 
+        expected_result = [['S', '.', '#', '#', '.', '.', '.', '.', '.', 'T'],
+                           ['#', 'T', '#', '#', '.', '.', '#', '#', '#', '.'],
+                           ['#', '.', '#', '#', '#', 'E', '#', '#', '#', 'E'],
+                           ['#', '.', 'E', '.', '.', '.', '#', '#', '#', '.'],
+                           ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G']]
 
         test_obj = Dungeon(test_filename)
- 
-        self.assertEqual(getattr(test_obj,'map'), expected_result)
+        self.assertEqual(getattr(test_obj, 'map'), expected_result)
+
 
 class TestDungeonSpawn(unittest.TestCase):
     def test_dungeon_spawn_raises_typeerror_if_argument_is_not_of_hero_type(self):
@@ -78,6 +79,7 @@ class TestDungeonSpawn(unittest.TestCase):
 
         self.assertEqual(getattr(test_obj, 'hero'), test_hero1)
         self.assertEqual(getattr(test_obj, 'map'), expected_result)
+
 
 if __name__ == '__main__':
     unittest.main()
