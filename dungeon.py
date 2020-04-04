@@ -148,43 +148,60 @@ class Dungeon:
             print('CONGRATULATIONS!\nYOU WON!')
             return True
 
-    def _fight(self, enemy):                                                  # TODO: Test
-        for index in range(0, 5):
-            attack_type = {Spell: 'casts a', Weapon: 'hits with'}
+    def _fight(self, enemy):
+        while True:
+            string_result = ''
+
+            if not getattr(self.hero, 'weapon') and not getattr(self.hero, 'spell'):
+                string_result += 'Hero doesn`t have a weapon and doesn`t know a spell.\n \
+                                  He doesn`t stand a chance against the enemy.'
+                setattr(self.hero, 'health', 0)
+                return string_result
+
             self.hero.regenerate_mana()
 
-            hero_weapon = self.hero.attack()
-            if hero_weapon is not None:
-                hero_weapon_name = getattr(hero_weapon, 'name')
-                hero_weapon_damage = getattr(hero_weapon, 'damage')
-
-            enemy_weapon = enemy.attack()
-            enemy_weapon_name = getattr(enemy_weapon, 'name')
-            enemy_weapon_damage = getattr(enemy_weapon, 'damage')
-
-            if hero_weapon is None:
-                print("Hero doesn't have a weapon. He didn't hit the enemy.")
-            else:
-                print(f'Hero {attack_type[type(hero_weapon)]} {hero_weapon_name}, hits enemy for {hero_weapon_damage}.')
-                enemy.take_damage(hero_weapon_damage)
-
-            print(f'Enemy health is {enemy.get_health()}.')
+            enemy_damage_taken, hero_weapon, add_to_string = self.attack(self.hero, enemy)
+            string_result += add_to_string
 
             if not enemy.is_alive():
-                return
+                return string_result
 
-            print(f'Enemy {attack_type[type(enemy_weapon)]} {enemy_weapon_name}, hits Hero for {enemy_weapon_damage}.')
-            self.hero.take_damage(enemy_weapon_damage)
-            print(f'Hero health is {self.hero.get_health()}.')
+            hero_damage_taken, enemy_weapon, add_to_string = self.attack(enemy, self.hero)
+            string_result += add_to_string
 
             if not self.hero.is_alive():
-                return
+                return string_result
 
-        print('Hero got tired and let his guard down.')
-        setattr(self.hero, 'health', 0)
-        return
+            if hero_damage_taken == 0 and enemy_damage_taken == 0 and \
+               type(hero_weapon) == Weapon and type(enemy_weapon) == Weapon:
+                string_result += 'Hero got tired and let his guard down.'
+                setattr(self.hero, 'health', 0)
+                return string_result
 
-    def hero_attack(self, by):                                                  # TODO: Implement + Test
+    def attack(attacker, defender):  # self.hero or enemy
+        weapon = attacker.attack()
+        weapon_type = type(weapon)
+        weapon_name = getattr(weapon, 'name')
+        weapon_dmg = getattr(weapon, 'damage')
+
+        damage_taken = defender.take_damage(weapon_dmg)
+        defender_armor = getattr(defender, 'armor')
+
+        attack_type = {Spell: 'casts a', Weapon: 'hits with'}
+
+        result = ''
+        result += f'{type(attacker).__name__} {attack_type[weapon]} {weapon_name}, \
+                    tries to deal {weapon_dmg} damage.\n'
+        if defender_armor:
+            result += '{type(defender).__name__}`s {getattr(defender_armor, 'name')} took \
+                               {getattr(defender_armor, 'armor_points')} of the damage'
+
+        result += f'{type(defender).__name__} health is {defender.get_health()}.'
+
+        return (damage_taken, weapon, result)
+
+
+    def hero_attack(self, by):  # TODO: Implement + Test
         pass
         # IF TRUE : WHILE WALK, TAKE DAMAGE, CALL FIGHT
 
