@@ -1,52 +1,68 @@
 # dungeon.py
 
+from random import randint
+
 from hero import Hero
 from enemy import Enemy
 from weapon import Weapon
 from spell import Spell
-from potion import Potion
-from weapon import Weapon
 from armor import Armor
-from random import randint
+from potion import Potion
+
+
+def get_file_content(filename):  # in utils
+    with open(filename, 'r') as f:
+        return f.readlines()
+
 
 class Dungeon:
     # Constructor
 
-    def __init__ (self, filename):                                               # DONE
-        self.validate_input_dungeon(filename)
-        self.map = []
-            
-        with open(filename, 'r') as f:
-            while True: 
-                line = f.readline()
-                        
-                if not line: 
-                    break
-                else:
-                    line = list(line)
-                    line = line[:-1]
-                    self.map.append(line)
-    
-        self.saved_hero = None
-        self.hero = None
-        self.last_step = None
-        self.pos_x = None
-        self.pos_y = None
+    def __init__(self, map_file_name, treasure_file_name='treasures.txt'):
+        self.validate_input_dungeon(map_file_name)
+        self.map = self.init_map(map_file_name)
         self.map_size_x = len(self.map)
         self.map_size_y = len(self.map[0])
-        self.treasures = self.__initialize_treasures('treasures.txt')
+
+        self.hero = None
+        self.pos_x = None
+        self.pos_y = None
+
+        self.last_step = None
+        self.saved_hero = None
+
+        self.treasures = self.init_treasures(treasure_file_name)
+
+    @staticmethod  # in utils?
+    def init_map(filename):
+        dungeon_map = get_file_content(filename)
+        return [[char for char in row][:-1] for row in dungeon_map]
+
+    @staticmethod  # in utils?
+    def init_treasures(filename):
+        all_lines = get_file_content(filename)
+        treasures = []
+
+        for line in all_lines:
+            line = line.split(' ')
+            treasure_type = eval(line[0])
+
+            if treasure_type in [Potion, Weapon, Spell, Armor]:
+                treasures.append(treasure_type.from_list(line[1:]))
+
+        return treasures
 
     # Public
 
     def print_map(self):                                                        # DONE
-        for elem in self.map:
-            print(''.join(elem))
+        for row in self.map:
+            print(''.join(row))
 
     def spawn(self, hero):                                                      # DONE
         if type(hero) is not Hero:
             raise TypeError('Argument must be of "Hero" type.')
-        elif self.hero is not None:
-            raise Exception('Cannot have more than 1 hero in the dungeon.')
+
+        assert not self.hero, 'Cannot have more than 1 hero in the dungeon.'
 
         for row in range(0, len(self.map)):
             for col in range(0, len(self.map[row])):
@@ -61,37 +77,38 @@ class Dungeon:
         return False
 
     def move_hero(self, direction):
-        way = { 'up': {'x': -1, 'y': 0}, 'down': {'x': 1, 'y': 0}, 
-                'left': {'x': 0, 'y': -1}, 'right': {'x': 0, 'y': 1} }
-            
+        way = {'up': {'x': -1, 'y': 0},
+               'down': {'x': 1, 'y': 0},
+               'left': {'x': 0, 'y': -1},
+               'right': {'x': 0, 'y': 1}}
+
         if type(direction) is not str:
                 raise TypeError('Direction must be of "str" type.')
         elif direction not in way.keys():
                 raise Exception('Unrecognized direction.')
-        elif self.hero == None:
+        elif not self.hero:
                 raise Exception('No hero on the map.')
-
 
         new_pos_x = self.pos_x + way[direction]['x']
         new_pos_y = self.pos_y + way[direction]['y']
 
-        self.hero.take_mana(getattr(self.hero,'mana_regeneration_rate'))        # Handle mana regen 1
-            
-        if  self._check_if_invalid_position(new_pos_x, new_pos_y) or \
-            self._check_if_obstacle(new_pos_x, new_pos_y):
-            
+        self.hero.regenerate_mana()  # Handle mana regen 1
+
+        if self._check_if_invalid_position(new_pos_x, new_pos_y) or \
+           self._check_if_obstacle(new_pos_x, new_pos_y):
             print('You cannot go there!')
             return False
-                
+
         elif self._check_if_walkable_path(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             return True
-            
+
         elif self._check_if_treasure(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('Found treasure!')
             self.pick_treasure()
-                
+            return True
+
         elif self._check_if_enemy(new_pos_x, new_pos_y):
             enemy = Enemy(50, 50, 20)
 
@@ -118,10 +135,11 @@ class Dungeon:
                 else:
                     print('Hero could not respawn.')
                     print('-GAME OVER-')
-                    
+
         elif self._check_if_spawn_point(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, 'S')
-     
+            return True
+
         elif self._check_if_gateway(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('CONGRATULATIONS!\nYOU WON!')
@@ -169,65 +187,41 @@ class Dungeon:
 
     # Help Enemy move to Hero:
 
-    def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test 
+    def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test
         pass
 
     def pick_treasure(self):                                                    # DONE
-        treasure = self.treasures[randint(0, len(self.treasures) - 1)] 
+        treasure = self.treasures[randint(0, len(self.treasures) - 1)]
         treasure.equip_to(self.hero)
 
+    # Help functions for move
 
-    # Help initialize treasures
-
-    def __initialize_treasures(self, filename):                                 # TODO: Test
-        treasures = []
-
-        with open(filename, 'r') as f:
-           while True:  
-                line = f.readline()
-                if not line: 
-                    break
-                else:
-                    line_list = list(line.split())
-                    if line_list[0] == 'Potion':
-                        treasures.append(Potion(line_list[1], int(line_list[2])))
-                    elif line_list[0] == 'Weapon':
-                        treasures.append(Weapon(line_list[1], int(line_list[2])))
-                    elif line_list[0] == 'Armor':
-                        treasures.append(Armor(line_list[1], int(line_list[2])))
-                    else:
-                        treasures.append(Spell(line_list[1], int(line_list[2]), int(line_list[3]), int(line_list[4])))
-        return treasures
-            
-
-    # Help functions for move:
-        
     def _check_if_invalid_position(self, new_pos_x, new_pos_y):                 # DONE
-        return new_pos_x < 0 or new_pos_x >= self.map_size_x or\
-                new_pos_y < 0 or new_pos_y >= self.map_size_y
-        
+        return new_pos_x < 0 or new_pos_x >= self.map_size_x or \
+            new_pos_y < 0 or new_pos_y >= self.map_size_y
+
     def _check_if_obstacle(self, new_pos_x, new_pos_y):                         # DONE
-        return self.map[new_pos_x][new_pos_y] == '#'    
-    
+        return self.map[new_pos_x][new_pos_y] == '#'
+
     def _check_if_walkable_path(self, new_pos_x, new_pos_y):                    # DONE
         return self.map[new_pos_x][new_pos_y] == '.'
-        
+
     def _check_if_treasure(self, new_pos_x, new_pos_y):                         # DONE
-        return self.map[new_pos_x][new_pos_y] == 'T'    
-    
+        return self.map[new_pos_x][new_pos_y] == 'T'
+
     def _check_if_enemy(self, new_pos_x, new_pos_y):                            # DONE
         return self.map[new_pos_x][new_pos_y] == 'E'
-        
+
     def _check_if_spawn_point(self, new_pos_x, new_pos_y):                      # DONE
         return self.map[new_pos_x][new_pos_y] == 'S'
 
-    def _check_if_gateway(self, new_pos_x, new_pos_y):                          # DONE 
+    def _check_if_gateway(self, new_pos_x, new_pos_y):                          # DONE
         return self.map[new_pos_x][new_pos_y] == 'G'
-    
+
     def __move_hero_to_position(self, new_pos_x, new_pos_y, current_step):      # DONE
         self.map[self.pos_x][self.pos_y] = self.last_step
         self.last_step = current_step
-                
+
         self.map[new_pos_x][new_pos_y] = 'H'
         self.pos_x = new_pos_x
         self.pos_y = new_pos_y
@@ -238,73 +232,68 @@ class Dungeon:
     def validate_input_dungeon(filename):
         if type(filename) is not str:
             raise TypeError('Filename must be of "str" type.')
-       
+
         try:
             with open(filename, 'r') as f:
                 len_line = len(f.readline())
 
-                while True: 
+                while True:
                     line = f.readline()
-                    if not line: 
+                    if not line:
                         break
                     elif len(line) != len_line:
                         raise Exception('Map must be rectangular.')
-                    
+
         except FileNotFoundError:
-            print('No such file.')
+            print('No such file.', filename)
 
 
-#Improvised test :
+def main():
+    h = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
 
-h = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+    w = Weapon(name="The Axe of Destiny", damage=20)
+    h.equip(w)
 
-w = Weapon(name="The Axe of Destiny", damage=20)
+    s = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
+    h.equip(s)
 
-h.equip(w)
+    map = Dungeon("level1.txt")
+    map.spawn(h)
+    map.print_map()
 
-s = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
+    map.move_hero("right")
+    map.print_map()
 
-h.equip(s)
+    map.move_hero("down")
+    map.print_map()
 
-map = Dungeon("level1.txt")
+    # map.hero_attack(by="spell")
 
-map.spawn(h)
+    map.move_hero("down")
+    map.move_hero("down")
+    map.print_map()
 
-map.print_map()
+    map.move_hero("right")
+    map.print_map()
 
-map.move_hero("right")  
+    map.move_hero("right")
+    map.move_hero("right")
+    map.move_hero("right")
+    map.move_hero("up")
+    map.move_hero("up")
+    map.move_hero("up")
+    map.move_hero("right")
+    map.move_hero("right")
+    map.move_hero("right")
+    map.move_hero("right")
+    map.move_hero("down")
+    map.move_hero("down")
+    map.move_hero("down")
+    map.move_hero("down")
+    # map.print_map()
 
-map.print_map()
 
-map.move_hero("down")
-
-map.print_map()
-
-# map.hero_attack(by="spell")
-
-map.move_hero("down")
-
-map.move_hero("down")
-
-map.print_map()
-
-map.move_hero("right")
-
-map.print_map()
-
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("up")
-map.move_hero("up")
-map.move_hero("up")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("down")
-map.move_hero("down")
-map.move_hero("down")
-map.move_hero("down")
-#map.print_map()
-
+if __name__ == '__main__':
+    #main()
+    obj = Dungeon('level1.txt')
+    obj.print_map()

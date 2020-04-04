@@ -7,6 +7,14 @@ class Armor(Treasure):
         assert armor_points >= 0, 'Ivalid armor points'
         self.armor_points = armor_points
 
+    @classmethod
+    def from_list(cls, arguments):
+        assert len(arguments) == 2, 'Invalid number of arguments'
+        return cls(arguments[0], int(arguments[1]))
+
+    def __repr__(self):
+        return self.name
+
     def __eq__(self, other):
         return self.name == other.name and self.armor_points == other.armor_points
 
