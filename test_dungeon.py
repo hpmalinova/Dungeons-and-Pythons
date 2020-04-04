@@ -77,5 +77,86 @@ class TestDungeonSpawn(unittest.TestCase):
         self.assertEqual(getattr(test_obj, 'map'), expected_result)
 
 
+class TestDungeonCheckIfInvalidPosition(unittest.TestCase):
+    def test_dungeon_check_if_invalid_position_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_invalid_position(-1, 5))
+        self.assertFalse(test_obj._check_if_invalid_position(0, 1))
+
+
+class TestDungeonCheckIfObstacle(unittest.TestCase):
+    def test_dungeon_check_if_obstacle_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_obstacle(0, 2))
+        self.assertFalse(test_obj._check_if_obstacle(0, 1))
+
+
+class TestDungeonCheckIfWalkablePath(unittest.TestCase):
+    def test_dungeon_check_if_walkable_path_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_walkable_path(0, 1))
+        self.assertFalse(test_obj._check_if_walkable_path(0, 9))
+
+
+class TestDungeonCheckIfTreasure(unittest.TestCase):
+    def test_dungeon_check_if_treasure_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_treasure(0, 9))
+        self.assertFalse(test_obj._check_if_treasure(2, 5))
+
+
+class TestDungeonCheckIfEnemy(unittest.TestCase):
+    def test_dungeon_check_if_enemy_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_enemy(2, 5))
+        self.assertFalse(test_obj._check_if_enemy(0, 1))
+
+
+class TestDungeonCheckIfSpawnPoint(unittest.TestCase):
+    def test_dungeon_check_if_spawn_point_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_spawn_point(0, 0))
+        self.assertFalse(test_obj._check_if_spawn_point(0, 1))
+
+
+class TestDungeonCheckIfGetaway(unittest.TestCase):
+    def test_dungeon_check_if_getaway_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+
+        self.assertTrue(test_obj._check_if_gateway(4, 9))
+        self.assertFalse(test_obj._check_if_gateway(0, 1))
+
+
+class TestDungeonMoveHeroToPosition(unittest.TestCase):
+    def test_dungeon_move_hero_to_position_works_as_expected(self):
+        test_filename = 'level1.txt'
+        test_obj = Dungeon(test_filename)
+        test_hero1 = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        test_obj.spawn(test_hero1)
+
+        expected_result = [['.', 'H', '#', '#', '.', '.', '.', '.', '.', 'T'],
+                           ['#', 'T', '#', '#', '.', '.', '#', '#', '#', '.'],
+                           ['#', '.', '#', '#', '#', 'E', '#', '#', '#', 'E'],
+                           ['#', '.', 'E', '.', '.', '.', '#', '#', '#', '.'],
+                           ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G']]
+
+        test_obj._Dungeon__move_hero_to_position(0, 1, '.')
+
+        self.assertEqual(getattr(test_obj, 'map'), expected_result)
+
+
 if __name__ == '__main__':
     unittest.main()
