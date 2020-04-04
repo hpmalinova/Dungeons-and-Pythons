@@ -32,5 +32,5 @@ class Enemy(Human):
     def validate_input_enemy(damage):
         if type(damage) is not int and type(damage) is not float:
             raise TypeError('Damage must be of "int" / "float" type.')
-        elif damage < 0:
-            raise Exception('Damage cannot be negative.')
+        elif damage <= 0:
+            raise ValueError('Damage should be positive.')

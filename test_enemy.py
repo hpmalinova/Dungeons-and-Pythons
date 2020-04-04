@@ -5,30 +5,20 @@ from enemy import Enemy
 from weapon import Weapon
 from spell import Spell
 
+
 class TestEnemyValidation(unittest.TestCase):
     def test_enemy_validation_raises_typeerror_if_damage_not_int_or_float(self):
         damage = 'damage'
-        exc = None
 
-        try:
+        with self.assertRaisesRegex(TypeError, 'Damage must be of "int" / "float" type.'):
             Enemy.validate_input_enemy(damage)
-        except TypeError as err:
-            exc = err
-
-        self.assertIsNotNone(exc)
-        self.assertEqual(str(exc), 'Damage must be of "int" / "float" type.')
 
     def test_enemy_validation_raises_exception_if_damage_is_negative(self):
         damage = -5
-        exc = None
 
-        try:
+        with self.assertRaisesRegex(ValueError, 'Damage should be positive.'):
             Enemy.validate_input_enemy(damage)
-        except Exception as err:
-            exc = err
 
-        self.assertIsNotNone(exc)
-        self.assertEqual(str(exc), 'Damage cannot be negative.')
 
 class TestEnemyInit(unittest.TestCase):
     def test_enemy_init_initializes_object_as_expected(self):
@@ -42,57 +32,42 @@ class TestEnemyInit(unittest.TestCase):
         self.assertEqual(getattr(test_obj, 'mana'), mana)
         self.assertEqual(getattr(test_obj, 'damage'), damage)
 
+
 class TestEnemyTakeMana(unittest.TestCase):
     def test_enemy_take_mana_returns_false(self):
-        health = 100
-        mana = 50
-        damage = 20
+        enemy = Enemy(100, 50, 20)
 
-        test_obj = Enemy(health, mana, damage)
+        self.assertFalse(enemy.take_mana())
 
-        self.assertEqual(test_obj.take_mana(), False)
 
 class TestEnemyAttack(unittest.TestCase):
-    def test_enemy_attack_uses_starting_damage_if_no_weapons_or_spells(self):
-        health = 100
-        mana = 50
-        damage = 20
+    def test_when_enemy_has_no_weapons_or_spells_then_return_fists(self):
+        test_obj = Enemy(150, 50, 20)
 
-        test_obj = Enemy(health, mana, damage)
+        self.assertEqual(test_obj.attack(), Weapon('Fists', 20))
 
-        self.assertEqual(test_obj.attack(), 20)
+    def test_when_enemy_fists_are_stronger_than_weapons_then_return_fists(self):
+        enemy = Enemy(150, 50, 50)
+        weapon = Weapon('Axe', 10)
+        weapon.equip_to(enemy)
 
-    def test_enemy_attack_uses_max_damage_from_weapon_spell_starting(self):
-        health = 100
-        mana = 50
-        damage = 20
+        self.assertEqual(enemy.attack(), Weapon('Fists', 20))
 
-        test_obj = Enemy(health, mana, damage)       
-        
-        test_weapon = Weapon(name="The Axe of Destiny", damage=40)
-        test_spell = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2) 
+    def test_when_enemy_fists_are_weaker_than_weapon_then_return_weapon(self):
+        enemy = Enemy(150, 50, 50)
+        weapon = Weapon('Axe', 100)
+        weapon.equip_to(enemy)
 
-        test_obj.equip(test_weapon)
-        test_obj.learn(test_spell)
+        self.assertEqual(enemy.attack(), weapon)
 
-        self.assertEqual(test_obj.attack(), 40)
+    def test_when_enemy_fists_are_weaker_than_spell_then_return_spell(self):
+        enemy = Enemy(150, 50, 50)
+        spell = Spell(name="Fireball", damage=150, mana_cost=50, cast_range=2)
 
-    def test_enemy_attack_reduces_mana_by_mana_cost_if_spell_has_most_damage(self):
-        health = 100
-        mana = 50
-        damage = 20
+        spell.equip_to(enemy)
 
-        test_obj = Enemy(health, mana, damage)       
-        
-        test_weapon = Weapon(name="The Axe of Destiny", damage=40)
-        test_spell = Spell(name="Fireball", damage=50, mana_cost=50, cast_range=2) 
-
-        test_obj.equip(test_weapon)
-        test_obj.learn(test_spell)
-
-        self.assertEqual(test_obj.attack(), 50)
-        self.assertEqual(getattr(test_obj,'mana'), 0)
-
+        self.assertEqual(enemy.attack(), spell)
+        self.assertEqual(getattr(enemy, 'mana'), 0)
 
 
 if __name__ == '__main__':

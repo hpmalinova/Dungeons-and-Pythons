@@ -32,10 +32,11 @@ class Hero(Human):
 
         if by == 'weapon':
             return self.__attack_by_weapon()
-        if by == 'magic':
+        elif by == 'magic':
             return self.__attack_by_magic()
 
-        raise Exception('Unrecognized means of attack.')
+        else:
+            raise ValueError('Unrecognized means of attack.')
 
     def __attack_by_weapon(self):
         if not self.weapon:
@@ -44,16 +45,11 @@ class Hero(Human):
             return self.weapon
 
     def __attack_by_magic(self):
-        if not self.spell:
-            print("You don't know any spells.")
+        if not self.spell or not self.can_cast():
             return None
-        if self.can_cast():
-            self.mana -= getattr(self.spell, 'mana_cost')
-            return self.spell
-        else:
-            print('Not enough mana to cast the spell.')
-            return None
-        # TODO: Handling cast_range.
+
+        self.mana -= getattr(self.spell, 'mana_cost')
+        return self.spell
 
     # Static
 
@@ -66,4 +62,4 @@ class Hero(Human):
         elif type(mana_regeneration_rate) is not int:
             raise TypeError('Mana regeneration rate must be of "int" type.')
         elif mana_regeneration_rate < 0:
-            raise Exception('Mana regeneration rate cannot be negative.')
+            raise ValueError('Mana regeneration rate cannot be negative.')
