@@ -14,6 +14,14 @@ class Spell(Treasure):
         assert cast_range >= 0, 'Cast range can`t be a negative number.'
         self.cast_range = cast_range
 
+    @classmethod
+    def from_list(cls, arguments):
+        assert len(arguments) == 4, 'Invalid number of arguments'
+        return cls(arguments[0], int(arguments[1]), int(arguments[2]), int(arguments[3]))
+
+    def __repr__(self):
+        return self.name
+
     def __eq__(self, other):
         return self.name == other.name and self.damage == other.damage and \
             self.mana_cost == other.mana_cost and self.cast_range == other.cast_range
