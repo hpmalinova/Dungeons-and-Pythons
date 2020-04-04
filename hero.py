@@ -26,6 +26,9 @@ class Hero(Human):
         else:
             self.mana += mana_points
 
+    def regenerate_mana(self):
+        self.take_mana(self.mana_regeneration_rate)
+
     def attack(self, by=None):
         if not by:
             return self.get_strongest_mean()
