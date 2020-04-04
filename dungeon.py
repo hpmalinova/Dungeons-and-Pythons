@@ -37,7 +37,6 @@ class Dungeon:
     def init_map(filename):
         dungeon_map = get_file_content(filename)
         return [[char for char in row][:-1] for row in dungeon_map]
-        #return [line[:-1] for line in dungeon_map]
 
     @staticmethod  # in utils?
     def init_treasures(filename):
@@ -62,8 +61,8 @@ class Dungeon:
     def spawn(self, hero):                                                      # DONE
         if type(hero) is not Hero:
             raise TypeError('Argument must be of "Hero" type.')
-        elif self.hero is not None:
-            raise Exception('Cannot have more than 1 hero in the dungeon.')
+
+        assert not self.hero, 'Cannot have more than 1 hero in the dungeon.'
 
         for row in range(0, len(self.map)):
             for col in range(0, len(self.map[row])):
@@ -78,37 +77,38 @@ class Dungeon:
         return False
 
     def move_hero(self, direction):
-        way = { 'up': {'x': -1, 'y': 0}, 'down': {'x': 1, 'y': 0}, 
-                'left': {'x': 0, 'y': -1}, 'right': {'x': 0, 'y': 1} }
-            
+        way = {'up': {'x': -1, 'y': 0},
+               'down': {'x': 1, 'y': 0},
+               'left': {'x': 0, 'y': -1},
+               'right': {'x': 0, 'y': 1}}
+
         if type(direction) is not str:
                 raise TypeError('Direction must be of "str" type.')
         elif direction not in way.keys():
                 raise Exception('Unrecognized direction.')
-        elif self.hero == None:
+        elif not self.hero:
                 raise Exception('No hero on the map.')
-
 
         new_pos_x = self.pos_x + way[direction]['x']
         new_pos_y = self.pos_y + way[direction]['y']
 
-        self.hero.take_mana(getattr(self.hero,'mana_regeneration_rate'))        # Handle mana regen 1
-            
-        if  self._check_if_invalid_position(new_pos_x, new_pos_y) or \
-            self._check_if_obstacle(new_pos_x, new_pos_y):
-            
+        self.hero.regenerate_mana()  # Handle mana regen 1
+
+        if self._check_if_invalid_position(new_pos_x, new_pos_y) or \
+           self._check_if_obstacle(new_pos_x, new_pos_y):
             print('You cannot go there!')
             return False
-                
+
         elif self._check_if_walkable_path(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             return True
-            
+
         elif self._check_if_treasure(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('Found treasure!')
             self.pick_treasure()
-                
+            return True
+
         elif self._check_if_enemy(new_pos_x, new_pos_y):
             enemy = Enemy(50, 50, 20)
 
@@ -135,10 +135,11 @@ class Dungeon:
                 else:
                     print('Hero could not respawn.')
                     print('-GAME OVER-')
-                    
+
         elif self._check_if_spawn_point(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, 'S')
-     
+            return True
+
         elif self._check_if_gateway(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('CONGRATULATIONS!\nYOU WON!')
@@ -186,42 +187,41 @@ class Dungeon:
 
     # Help Enemy move to Hero:
 
-    def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test 
+    def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test
         pass
 
     def pick_treasure(self):                                                    # DONE
-        treasure = self.treasures[randint(0, len(self.treasures) - 1)] 
+        treasure = self.treasures[randint(0, len(self.treasures) - 1)]
         treasure.equip_to(self.hero)
 
+    # Help functions for move
 
-    # Help functions for move:
-        
     def _check_if_invalid_position(self, new_pos_x, new_pos_y):                 # DONE
-        return new_pos_x < 0 or new_pos_x >= self.map_size_x or\
-                new_pos_y < 0 or new_pos_y >= self.map_size_y
-        
+        return new_pos_x < 0 or new_pos_x >= self.map_size_x or \
+            new_pos_y < 0 or new_pos_y >= self.map_size_y
+
     def _check_if_obstacle(self, new_pos_x, new_pos_y):                         # DONE
-        return self.map[new_pos_x][new_pos_y] == '#'    
-    
+        return self.map[new_pos_x][new_pos_y] == '#'
+
     def _check_if_walkable_path(self, new_pos_x, new_pos_y):                    # DONE
         return self.map[new_pos_x][new_pos_y] == '.'
-        
+
     def _check_if_treasure(self, new_pos_x, new_pos_y):                         # DONE
-        return self.map[new_pos_x][new_pos_y] == 'T'    
-    
+        return self.map[new_pos_x][new_pos_y] == 'T'
+
     def _check_if_enemy(self, new_pos_x, new_pos_y):                            # DONE
         return self.map[new_pos_x][new_pos_y] == 'E'
-        
+
     def _check_if_spawn_point(self, new_pos_x, new_pos_y):                      # DONE
         return self.map[new_pos_x][new_pos_y] == 'S'
 
-    def _check_if_gateway(self, new_pos_x, new_pos_y):                          # DONE 
+    def _check_if_gateway(self, new_pos_x, new_pos_y):                          # DONE
         return self.map[new_pos_x][new_pos_y] == 'G'
 
     def __move_hero_to_position(self, new_pos_x, new_pos_y, current_step):      # DONE
         self.map[self.pos_x][self.pos_y] = self.last_step
         self.last_step = current_step
- 
+
         self.map[new_pos_x][new_pos_y] = 'H'
         self.pos_x = new_pos_x
         self.pos_y = new_pos_y
