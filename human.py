@@ -24,6 +24,12 @@ class Human:
 
     # Public
 
+    def get_health(self):
+        return self.health
+
+    def get_mana(self):
+        return self.mana
+
     def is_alive(self):
         return self.health != 0
 
@@ -65,7 +71,7 @@ class Human:
 
         if my_type in equipable_items.keys():
             self.equip_item(item)
-        if my_type in drinkable_items:
+        elif my_type in drinkable_items: # Тук беше if и винаги влизаше в тайперър-а
             self.drink_potion(item)
         else:
             raise TypeError('Invalid item type.')
