@@ -20,6 +20,3 @@ class Spell(Treasure):
 
     def __lt__(self, other):
         return self.damage < other.damage
-
-    def equip_to(self, human):
-        human.learn(self)
