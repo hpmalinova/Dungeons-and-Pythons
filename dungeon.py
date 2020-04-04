@@ -12,7 +12,7 @@ from random import randint
 class Dungeon:
     # Constructor
 
-    def __init__ (self, filename):                                              # TODO: Add Treasures
+    def __init__ (self, filename):                                               # DONE
         self.validate_input_dungeon(filename)
         self.map = []
             
@@ -53,12 +53,11 @@ class Dungeon:
                 if self.map[row][col] == 'S':
                     self.hero = hero
                     self.saved_hero = hero
-                    self.pos_x = col
-                    self.pos_y = row
+                    self.pos_x = row
+                    self.pos_y = col
                     self.map[row][col] = 'H'
                     self.last_step = '.'
                     return True
-        print('-GAME OVER-')
         return False
 
     def move_hero(self, direction):
@@ -72,8 +71,11 @@ class Dungeon:
         elif self.hero == None:
                 raise Exception('No hero on the map.')
 
+
         new_pos_x = self.pos_x + way[direction]['x']
         new_pos_y = self.pos_y + way[direction]['y']
+
+        self.hero.take_mana(getattr(self.hero,'mana_regeneration_rate'))        # Handle mana regen 1
             
         if  self._check_if_invalid_position(new_pos_x, new_pos_y) or \
             self._check_if_obstacle(new_pos_x, new_pos_y):
@@ -81,22 +83,22 @@ class Dungeon:
             print('You cannot go there!')
             return False
                 
-        if self._check_if_walkable_path(new_pos_x, new_pos_y):
+        elif self._check_if_walkable_path(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             return True
             
-        if self._check_if_treasure(new_pos_x, new_pos_y):
+        elif self._check_if_treasure(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('Found treasure!')
             self.pick_treasure()
-            return True
                 
-        if self._check_if_enemy(new_pos_x, new_pos_y):
+        elif self._check_if_enemy(new_pos_x, new_pos_y):
             enemy = Enemy(50, 50, 20)
 
             print('A fight is started between:')
-            print(f'Our hero - {self.hero.known_as()}(health = {self.hero.get_health()}, mana = {self.hero.get_mana()})\nand\n')
+            print(f'Our hero - {self.hero.known_as()}(health = {self.hero.get_health()}, mana = {self.hero.get_mana()})\nand' )
             print(f'Enemey(health={enemy.get_health()}, mana={enemy.get_mana()}, damage={getattr(enemy,"damage")})')
+            print()
             
             self._fight(enemy)
 
@@ -105,7 +107,6 @@ class Dungeon:
 
                 self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
 
-                return True 
             else:
                 print('Hero died!')
 
@@ -116,42 +117,69 @@ class Dungeon:
                     print('Hero Respawned.')
                 else:
                     print('Hero could not respawn.')
-
-                return False
+                    print('-GAME OVER-')
                     
-        if self._check_if_spawn_point(new_pos_x, new_pos_y):
+        elif self._check_if_spawn_point(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, 'S')
-            return True
      
-        if self._check_if_gateway(new_pos_x, new_pos_y):
+        elif self._check_if_gateway(new_pos_x, new_pos_y):
             self.__move_hero_to_position(new_pos_x, new_pos_y, '.')
             print('CONGRATULATIONS!\nYOU WON!')
             return True
 
-    def _fight(self, encountered_enemy):                                         # TODO: Test
-        while self.hero.is_alive() and encountered_enemy.is_alive():
-            encountered_enemy.take_damage(self.hero.attack_with_strongest_mean())
-            self.hero.take_damage(encountered_enemy.attack_with_strongest_mean())
+    def _fight(self, enemy):                                                    # TODO: Test
+        for index in range(0,5):
+            attack_type = {Spell:'casts a', Weapon:'hits with'}
+            self.hero.take_mana(getattr(self.hero,'mana_regeneration_rate'))    # Handle mana regen 2
+            
+            hero_weapon = self.hero.attack()
+            if hero_weapon is not None:
+                hero_weapon_name = getattr(hero_weapon, 'name')
+                hero_weapon_damage = getattr(hero_weapon, 'damage')
 
+            enemy_weapon = enemy.attack()
+            enemy_weapon_name = getattr(enemy_weapon, 'name')
+            enemy_weapon_damage = getattr(enemy_weapon, 'damage')
+
+            if hero_weapon is None:
+                print("Hero doesn't have a weapon. He didn't hit the enemy.")
+            else:
+                print(f'Hero {attack_type[type(hero_weapon)]} {hero_weapon_name}, hits enemy for {hero_weapon_damage}.')
+                enemy.take_damage(hero_weapon_damage)
+            
+            print(f'Enemy health is {enemy.get_health()}.')
+
+            if not enemy.is_alive():
+                return
+
+            print(f'Enemy {attack_type[type(enemy_weapon)]} {enemy_weapon_name}, hits Hero for {enemy_weapon_damage}.')
+            self.hero.take_damage(enemy_weapon_damage)
+            print(f'Hero health is {self.hero.get_health()}.')
+
+            if not self.hero.is_alive():
+                return
+
+        print('Hero got tired and let his guard down.')
+        setattr(self.hero, 'health', 0)
+        return 
 
     def hero_attack(self, by):                                                  # TODO: Implement + Test
-        # IF TRUE : MAKE ENEMY, WHILE WALK, TAKE DAMAGE, CALL FIGHT
+        # IF TRUE : WHILE WALK, TAKE DAMAGE, CALL FIGHT
+        pass
+
+    # Help Enemy move to Hero:
+
+    def _move_enemy_towards_hero(self, enemy_x, enemy_y):                       # TODO: Implement + Test 
         pass
 
     def pick_treasure(self):                                                    # DONE
         treasure = self.treasures[randint(0, len(self.treasures) - 1)] 
-        test = Armor('pesho', 10)
-        print(test)
         treasure.equip_to(self.hero)
 
-    # Help Enemy move to Hero:
-
-    def _move_enemy_towards_hero(self, enemy_x, enemy_y):
-        pass
 
     # Help initialize treasures
 
-    def __initialize_treasures(self, filename):                                # TODO: Test
+    def __initialize_treasures(self, filename):                                 # TODO: Test
         treasures = []
 
         with open(filename, 'r') as f:
@@ -236,7 +264,7 @@ h.equip(w)
 
 s = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
 
-h.equip(s)                                                                  # It was 'learn'
+h.equip(s)
 
 map = Dungeon("level1.txt")
 
@@ -244,7 +272,9 @@ map.spawn(h)
 
 map.print_map()
 
-map.move_hero("right")
+map.move_hero("right")  
+
+map.print_map()
 
 map.move_hero("down")
 
@@ -277,3 +307,4 @@ map.move_hero("down")
 map.move_hero("down")
 map.move_hero("down")
 #map.print_map()
+
