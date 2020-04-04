@@ -54,15 +54,14 @@ class Human:
         if type(damage) is not float and type(damage) is not int:
             raise TypeError('Damage must be of "int" / "float" type.')
 
-        armor_points = 0
-
-        if self.armor:
-            armor_points = getattr(self.armor, 'armor_points')
+        armor_points = getattr(self.armor, 'armor_points') if self.armor else 0
 
         if damage > armor_points:
             damage -= armor_points
 
             self.health = (self.health - damage) if damage < self.health else 0
+            return damage
+        return 0
 
     # Equip
 
