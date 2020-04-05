@@ -291,7 +291,6 @@ class Dungeon:
             for direction in way.keys():
                 x = self.hero_coordinates['x'] + (i * way[direction]['x'])
                 y = self.hero_coordinates['y'] + (i * way[direction]['y'])
-                print('here:', x, y)
                 if not self._check_if_invalid_position(x, y):
                     if self._check_if_enemy(x, y):
                         enemy_position = {'x': x, 'y': y}
