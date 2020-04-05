@@ -16,8 +16,11 @@ class Potion(Treasure):
         assert len(arguments) == 2, 'Invalid number of arguments'
         return cls(arguments[0], int(arguments[1]))
 
+    def __str__(self):
+        return f'{type(self).__name__} gives {self.points} {self.potion_type}.'
+
     def __repr__(self):
-        return self.potion_type + ' potion'
+        return f'{type(self).__name__} gives {self.points} {self.potion_type}.'
 
     def __eq__(self, other):
         return self.potion_type == other.potion_type and self.points == other.points
