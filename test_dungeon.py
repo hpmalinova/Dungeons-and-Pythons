@@ -158,5 +158,40 @@ class TestDungeonMoveHeroToPosition(unittest.TestCase):
         self.assertEqual(getattr(test_obj, 'map'), expected_result)
 
 
+class TestCheckForEnemy(unittest.TestCase):
+    def test_check_for_enemy_when_no_enemy_in_range_then_return_invalid_enemy_position(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        dungeon.spawn(hero)
+
+        expected_enemy_position = {'x': -1, 'y': -1}
+        # dungeon_map = [['H', '.', '#', '#', '.', '.', '.', '.', '.', 'T'],
+        #                ['#', 'T', '#', '#', '.', '.', '#', '#', '#', '.'],
+        #                ['#', '.', '#', '#', '#', 'E', '#', '#', '#', 'E'],
+        #                ['#', '.', 'E', '.', '.', '.', '#', '#', '#', '.'],
+        #                ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G']]
+
+        self.assertEqual(dungeon.check_for_enemy(2), expected_enemy_position)
+
+    def test_check_for_enemy_when_enemy_in_range_1_then_return_invalid_enemy_position(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        dungeon.spawn(hero)
+        dungeon.move_hero('right')
+        dungeon.move_hero('down')
+        dungeon.move_hero('down')
+        dungeon.move_hero('down')
+        #print(dungeon.hero_coordinates) x:3, y:1
+
+        expected_enemy_position = {'x': 3, 'y': 2}
+        # dungeon_map = [['.', '.', '#', '#', '.', '.', '.', '.', '.', 'T'],
+        #                ['#', '.', '#', '#', '.', '.', '#', '#', '#', '.'],
+        #                ['#', '.', '#', '#', '#', 'E', '#', '#', '#', 'E'],
+        #                ['#', 'H', 'E', '.', '.', '.', '#', '#', '#', '.'],
+        #                ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G']]
+
+        self.assertEqual(dungeon.check_for_enemy(1), expected_enemy_position)
+
+
 if __name__ == '__main__':
     unittest.main()
