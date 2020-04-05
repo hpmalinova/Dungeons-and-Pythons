@@ -2,4 +2,3 @@ Potion mana 40
 Weapon sword 20
 Armor vest 40
 Spell Fireball 40 20 6
-
