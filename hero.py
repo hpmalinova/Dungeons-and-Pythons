@@ -15,6 +15,11 @@ class Hero(Human):
         self.title = title
         self.mana_regeneration_rate = mana_regeneration_rate
 
+    def get_spell_cast_range(self):
+        if not self.spell:
+            return -1
+        return getattr(self.spell, 'cast_range')
+
     # Public
 
     def known_as(self):
