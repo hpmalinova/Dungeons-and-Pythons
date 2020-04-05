@@ -173,7 +173,7 @@ class TestCheckForEnemy(unittest.TestCase):
 
         self.assertEqual(dungeon.check_for_enemy(2), expected_enemy_position)
 
-    def test_check_for_enemy_when_enemy_in_range_1_then_return_invalid_enemy_position(self):
+    def test_check_for_enemy_when_enemy_in_range_1_then_return_enemy_position(self):
         dungeon = Dungeon('level1.txt')
         hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
         dungeon.spawn(hero)
@@ -181,7 +181,6 @@ class TestCheckForEnemy(unittest.TestCase):
         dungeon.move_hero('down')
         dungeon.move_hero('down')
         dungeon.move_hero('down')
-        #print(dungeon.hero_coordinates) x:3, y:1
 
         expected_enemy_position = {'x': 3, 'y': 2}
         # dungeon_map = [['.', '.', '#', '#', '.', '.', '.', '.', '.', 'T'],
@@ -191,6 +190,59 @@ class TestCheckForEnemy(unittest.TestCase):
         #                ['#', '#', '#', 'T', '#', '#', '#', '#', '#', 'G']]
 
         self.assertEqual(dungeon.check_for_enemy(1), expected_enemy_position)
+
+
+class TestAttack(unittest.TestCase):
+    def test_when_hero_attacks_and_enemy_has_no_armor(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        hero.equip(Weapon('Axe', 20))
+
+        enemy = Enemy(50, 50, 20)
+
+        expected_damage_taken = 20
+
+        result_damage_taken = dungeon.attack(hero, enemy)[0]
+
+        self.assertEqual(result_damage_taken, expected_damage_taken)
+
+    def test_when_hero_attacks_and_enemy_has_armor_with_lower_armor_points(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        hero.equip(Weapon('Axe', 20))
+
+        enemy = Enemy(50, 50, 20)
+        enemy.equip(Armor('Vest', 10))
+
+        expected_damage_taken = 10
+
+        result_damage_taken = dungeon.attack(hero, enemy)[0]
+
+        self.assertEqual(result_damage_taken, expected_damage_taken)
+
+    def test_when_hero_has_no_weapon_or_spell(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        dungeon.spawn(hero)
+        enemy = Enemy(50, 50, 20)
+
+        result = dungeon._fight(enemy)
+
+        self.assertTrue('He doesn`t stand a chance against the enemy.' in result)
+
+    def test_when_hero_has_same_attack_points_as_enemy_armor_points(self):
+        dungeon = Dungeon('level1.txt')
+        hero = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
+        dungeon.spawn(hero)
+        hero.equip(Weapon('Axe', 20))
+        hero.equip(Armor('Shield', 20))
+
+        enemy = Enemy(50, 50, 20)
+        enemy.equip(Armor('Vest', 20))
+
+        result = dungeon._fight(enemy)
+
+        self.assertTrue('Hero got tired and let his guard down.' in result)
 
 
 if __name__ == '__main__':
