@@ -2,15 +2,15 @@
 
 from random import randint
 
-from hero import Hero
-from enemy import Enemy
-from weapon import Weapon
-from spell import Spell
-from armor import Armor
-from potion import Potion
+from dungeons_and_pythons.models import Hero
+from dungeons_and_pythons.models import Enemy
+from dungeons_and_pythons.models import Weapon
+from dungeons_and_pythons.models import Spell
+from dungeons_and_pythons.models import Armor
+from dungeons_and_pythons.models import Potion
 
 
-def get_file_content(filename):  # in utils
+def get_file_content(filename):
     with open(filename, 'r') as f:
         return f.readlines()
 
@@ -180,7 +180,7 @@ class Dungeon:
                 return fight_result
 
     @staticmethod
-    def attack(attacker, defender):  # self.hero or enemy
+    def attack(attacker, defender):
         weapon = attacker.attack()
         weapon_type = type(weapon)
         weapon_name = getattr(weapon, 'name')
@@ -312,36 +312,36 @@ class Dungeon:
                     queue.append(path + [(x2, y2)])
                     seen.add((y2, x2))
 
-    def pick_treasure(self, winner):                                                    # DONE
+    def pick_treasure(self, winner):
         treasure = self.treasures[randint(0, len(self.treasures) - 1)]
         treasure.equip_to(winner)
         print(f'{type(winner).__name__} finds a treasure: ', treasure)
 
     # Help functions for move
 
-    def _check_if_invalid_position(self, new_pos_x, new_pos_y):                 # DONE
+    def _check_if_invalid_position(self, new_pos_x, new_pos_y):
         return new_pos_x < 0 or new_pos_x >= len(self.map) or \
             new_pos_y < 0 or new_pos_y >= len(self.map[0])
 
-    def _check_if_obstacle(self, new_pos_x, new_pos_y):                         # DONE
+    def _check_if_obstacle(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == '#'
 
-    def _check_if_walkable_path(self, new_pos_x, new_pos_y):                    # DONE
+    def _check_if_walkable_path(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == '.'
 
-    def _check_if_treasure(self, new_pos_x, new_pos_y):                         # DONE
+    def _check_if_treasure(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == 'T'
 
-    def _check_if_enemy(self, new_pos_x, new_pos_y):                            # DONE
+    def _check_if_enemy(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == 'E'
 
-    def _check_if_spawn_point(self, new_pos_x, new_pos_y):                      # DONE
+    def _check_if_spawn_point(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == 'S'
 
-    def _check_if_gateway(self, new_pos_x, new_pos_y):                          # DONE
+    def _check_if_gateway(self, new_pos_x, new_pos_y):
         return self.map[new_pos_x][new_pos_y] == 'G'
 
-    def __move_hero_to_position(self, new_pos_x, new_pos_y, current_step):      # DONE
+    def __move_hero_to_position(self, new_pos_x, new_pos_y, current_step):
         self.map[self.hero_coordinates['x']][self.hero_coordinates['y']] = self.last_step
         self.last_step = current_step
 
@@ -370,41 +370,3 @@ class Dungeon:
         except FileNotFoundError:
             print('No such file.', filename)
 
-
-##############################################
-h = Hero(name="Bron", title="Dragonslayer", health=100, mana=100, mana_regeneration_rate=2)
-
-w = Weapon(name="The Axe of Destiny", damage=20)
-h.equip(w)
-
-s = Spell(name="Fireball", damage=30, mana_cost=50, cast_range=2)
-h.equip(s)
-
-map = Dungeon("level1.txt")
-map.spawn(h)
-
-map.move_hero("right")
-
-map.move_hero("down")
-
-map.hero_attack(by="magic")
-
-map.move_hero("down")
-map.move_hero("down")
-
-map.move_hero("right")
-
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("up")
-map.move_hero("up")
-map.move_hero("up")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("right")
-map.move_hero("down")
-map.move_hero("down")
-map.move_hero("down")
-map.move_hero("down")

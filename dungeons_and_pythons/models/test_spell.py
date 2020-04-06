@@ -1,5 +1,5 @@
 import unittest
-from spell import Spell
+from dungeons_and_pythons.models import Spell
 
 class TestSpell(unittest.TestCase):
 	def test_when_damage_is_negative_number_then_raise_error(self):

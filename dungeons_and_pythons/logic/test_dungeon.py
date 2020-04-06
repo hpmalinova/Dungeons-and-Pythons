@@ -2,13 +2,13 @@
 
 import unittest
 
-from dungeon import Dungeon
-from hero import Hero
-from enemy import Enemy
-from weapon import Weapon
-from spell import Spell
-from armor import Armor
-from potion import Potion
+from .dungeon import Dungeon
+from dungeons_and_pythons.models import Hero
+from dungeons_and_pythons.models import Enemy
+from dungeons_and_pythons.models import Weapon
+from dungeons_and_pythons.models import Spell
+from dungeons_and_pythons.models import Armor
+from dungeons_and_pythons.models import Potion
 
 
 class TestDungeonValidation(unittest.TestCase):

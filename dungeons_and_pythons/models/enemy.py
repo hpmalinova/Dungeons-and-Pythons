@@ -1,7 +1,7 @@
 # enemy.py
 
-from human import Human
-from weapon import Weapon
+from .human import Human
+from .weapon import Weapon
 
 
 class Enemy(Human):
