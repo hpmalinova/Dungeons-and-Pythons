@@ -19,8 +19,13 @@ class Spell(Treasure):
         assert len(arguments) == 4, 'Invalid number of arguments'
         return cls(arguments[0], int(arguments[1]), int(arguments[2]), int(arguments[3]))
 
+    def __str__(self):
+        return (f'{type(self).__name__}: {self.name} deals {self.damage} damage, '
+                f'costs {self.mana_cost} and has range {self.cast_range}.')
+
     def __repr__(self):
-        return self.name
+        return (f'{type(self).__name__}: {self.name} deals {self.damage} damage, '
+                f'costs {self.mana_cost} and has range {self.cast_range}.')
 
     def __eq__(self, other):
         return self.name == other.name and self.damage == other.damage and \
