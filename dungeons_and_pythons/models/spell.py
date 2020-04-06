@@ -1,4 +1,4 @@
-from treasure import Treasure
+from .treasure import Treasure
 
 
 class Spell(Treasure):

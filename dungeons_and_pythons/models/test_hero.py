@@ -1,10 +1,10 @@
 # test_hero.py
 
 import unittest
-from hero import Hero
-from weapon import Weapon
-from spell import Spell
-from potion import Potion
+from dungeons_and_pythons.models import Hero
+from dungeons_and_pythons.models import Weapon
+from dungeons_and_pythons.models import Spell
+from dungeons_and_pythons.models import Potion
 
 
 class TestHeroValidation(unittest.TestCase):

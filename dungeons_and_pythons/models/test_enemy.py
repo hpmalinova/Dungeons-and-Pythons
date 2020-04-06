@@ -1,9 +1,9 @@
 # test_enemy.py
 
 import unittest
-from enemy import Enemy
-from weapon import Weapon
-from spell import Spell
+from dungeons_and_pythons.models import Enemy
+from dungeons_and_pythons.models import Weapon
+from dungeons_and_pythons.models import Spell
 
 
 class TestEnemyValidation(unittest.TestCase):
@@ -51,7 +51,7 @@ class TestEnemyAttack(unittest.TestCase):
         weapon = Weapon('Axe', 10)
         weapon.equip_to(enemy)
 
-        self.assertEqual(enemy.attack(), Weapon('Fists', 20))
+        self.assertEqual(enemy.attack(), Weapon('Fists', 50))
 
     def test_when_enemy_fists_are_weaker_than_weapon_then_return_weapon(self):
         enemy = Enemy(150, 50, 50)

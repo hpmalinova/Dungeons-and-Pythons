@@ -1,11 +1,11 @@
 # test_human.py
 
 import unittest
-from human import Human
-from weapon import Weapon
-from spell import Spell
-from armor import Armor
-from potion import Potion
+from dungeons_and_pythons.models import Human
+from dungeons_and_pythons.models import Weapon
+from dungeons_and_pythons.models import Spell
+from dungeons_and_pythons.models import Armor
+from dungeons_and_pythons.models import Potion
 
 
 class TestHumanValidation(unittest.TestCase):

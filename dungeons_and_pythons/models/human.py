@@ -1,9 +1,9 @@
 # human.py
 
-from weapon import Weapon
-from spell import Spell
-from armor import Armor
-from potion import Potion
+from .weapon import Weapon
+from .spell import Spell
+from .armor import Armor
+from .potion import Potion
 
 
 class Human:

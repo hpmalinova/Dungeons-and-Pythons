@@ -1,6 +1,6 @@
 # hero.py
 
-from human import Human
+from .human import Human
 
 
 class Hero(Human):
